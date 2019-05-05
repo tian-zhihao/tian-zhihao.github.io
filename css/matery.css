@@ -405,11 +405,17 @@ header .go-back i {
 }
 
 @-webkit-keyframes rainbow {
-   
+    0%,
+    100% {
+        background: rgba(46, 139, 87, 0.3);
+    }
 }
 
-@keyframes rainbow {
-   
+@-webkit-keyframes rainbow {
+    0%,
+    100% {
+        background: rgba(46, 139, 87, 0.3);
+    }
 }
 
 .carousel .indicators {
