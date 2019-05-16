@@ -5,9 +5,9 @@
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
     <meta name="keywords" content="SQL语句练习笔记, 田志浩">
-    <meta name="description" content="一、新版本MySQL 修改密码说明：书上描述的是MySQL 5.0之前的内容，本此练习使用了MySQL 8.0.11关于USER 表的结构以及修改密码的命令有所改变。
+    <meta name="description" content="一、新版本MySQL 修改密码1.可以登入情况下修改说明：书上描述的是MySQL 5.0之前的内容，本此练习使用了MySQL 8.0.11关于USER 表的结构以及修改密码的命令有所改变。
 
-书上介绍的方法： SET PASSWORD FOR root@loca">
+书上介绍的方法： SET PASSWORD FO">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -398,19 +398,28 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="一、新版本MySQL-修改密码"><a href="#一、新版本MySQL-修改密码" class="headerlink" title="一、新版本MySQL 修改密码"></a>一、新版本MySQL 修改密码</h3><p>说明：书上描述的是MySQL 5.0之前的内容，本此练习使用了MySQL 8.0.11关于USER 表的结构以及修改密码的命令有所改变。</p>
+                <h3 id="一、新版本MySQL-修改密码"><a href="#一、新版本MySQL-修改密码" class="headerlink" title="一、新版本MySQL 修改密码"></a>一、新版本MySQL 修改密码</h3><h4 id="1-可以登入情况下修改"><a href="#1-可以登入情况下修改" class="headerlink" title="1.可以登入情况下修改"></a>1.可以登入情况下修改</h4><p>说明：书上描述的是MySQL 5.0之前的内容，本此练习使用了MySQL 8.0.11关于USER 表的结构以及修改密码的命令有所改变。</p>
 <ol>
 <li>书上介绍的方法：<br> <code>SET PASSWORD FOR root@localhost = Password(&#39;root&#39;);</code>  失效了。<br> 通过<code>select * from mysql.user</code>发现存储密码的是authentication_string字段，而之前版本是名叫password字段，新版本（8.0.5之后）该字段改名了。</li>
 <li><p>对于新版本可用方法：</p>
 <ul>
 <li><p><code>alter user &#39;root&#39;@&#39;localhost&#39;IDENTIFIED BY &#39;root&#39;;</code></p>
 </li>
-<li><p>直接修改表：<code>update user SET  authentication_string=&#39;root&#39; WHERE user=&#39;root&#39; and host=&#39;localhost&#39;;</code>注意老版是password字段，新版是authentication_string字段；另外网上有些版本WHERE子句只给了user限定，新版本报不安全错误（Error Code: 1175）update语句后要更完整主键限定。</p>
+<li><p>直接修改表(误)：<code>update user SET  authentication_string=&#39;root&#39; WHERE user=&#39;root&#39; and host=&#39;localhost&#39;;</code>注意老版是password字段，新版是authentication_string字段；另外网上有些版本WHERE子句只给了user限定，新版本报不安全错误（Error Code: 1175）update语句后要更完整主键限定。</p>
 <p><strong>注意：</strong>以上版本有误！！以上语句会把’root‘直接填入authentication_string字段里，登入时候默认密码会以md5加密。第二天登陆不进去，修改了密码半天。总结：1.密码字段填入密码也需要添加密后的值，老版本用的是password()函数，8.0.11后放弃了这个函数，可用mds()函数代替。2.不要折腾root用户了，日常练习用其他用户，更安全。正确写法<code>update user SET  authentication_string=md5(&#39;root&#39;) WHERE user=&#39;root&#39; and host=&#39;localhost&#39;;</code></p>
 </li>
 </ul>
 </li>
 </ol>
+<h4 id="2-在本机开启无密码登入"><a href="#2-在本机开启无密码登入" class="headerlink" title="2.在本机开启无密码登入"></a>2.在本机开启无密码登入</h4><p>由于我误把密码改为无加密的‘root’导致第二天彻底登入不了，故在8.0.11版本，在本机设置无密码登入，以改密码。</p>
+<ul>
+<li>管理员身份CMD，停止mysql服务 ：<code>net stop mysql</code></li>
+<li>开启无密码登入：<code>mysqld --console --skip-grant-tables --shared-memory</code></li>
+<li>保留前命令行窗口，新开窗口无密码登入：<code>mysql -u root -p</code>直接回车</li>
+<li>刷新权限：<code>FLUSH PRIVILEGES;</code></li>
+<li>按前一小结方法修改密码</li>
+<li>重新开启MySQL服务：<code>net start mysql</code></li>
+</ul>
 <h3 id="二、LeetCode-数据库部分笔记"><a href="#二、LeetCode-数据库部分笔记" class="headerlink" title="二、LeetCode 数据库部分笔记"></a>二、LeetCode 数据库部分笔记</h3><p>练习过程中，发现一些书上没有介绍的常用内置函数。另附，<a href="https://www.runoob.com/mysql/mysql-functions.html" target="_blank" rel="noopener">MySQL 函数</a>。</p>
 <h4 id="1-CASE-…-WHEN-THEN-…ESLE…END的使用"><a href="#1-CASE-…-WHEN-THEN-…ESLE…END的使用" class="headerlink" title="1. CASE … WHEN THEN …ESLE…END的使用"></a>1. CASE … WHEN THEN …ESLE…END的使用</h4><p>书中没有介绍case 函数，该函数用于依据情况返回值，有两种格式：</p>
 <ol>
