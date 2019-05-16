@@ -401,9 +401,13 @@
                 <h3 id="一、新版本MySQL-修改密码"><a href="#一、新版本MySQL-修改密码" class="headerlink" title="一、新版本MySQL 修改密码"></a>一、新版本MySQL 修改密码</h3><p>说明：书上描述的是MySQL 5.0之前的内容，本此练习使用了MySQL 8.0.11关于USER 表的结构以及修改密码的命令有所改变。</p>
 <ol>
 <li>书上介绍的方法：<br> <code>SET PASSWORD FOR root@localhost = Password(&#39;root&#39;);</code>  失效了。<br> 通过<code>select * from mysql.user</code>发现存储密码的是authentication_string字段，而之前版本是名叫password字段，新版本（8.0.5之后）该字段改名了。</li>
-<li>对于新版本可用方法：<ul>
-<li><code>alter user &#39;root&#39;@&#39;localhost&#39;IDENTIFIED BY &#39;root&#39;;</code></li>
-<li>直接修改表：<code>update user SET  authentication_string=&#39;root&#39; WHERE user=&#39;root&#39; and host=&#39;localhost&#39;;</code>注意老版是password字段，新版是authentication_string字段；另外网上有些版本WHERE子句只给了user限定，新版本报不安全错误（Error Code: 1175）update语句后要更完整主键限定。</li>
+<li><p>对于新版本可用方法：</p>
+<ul>
+<li><p><code>alter user &#39;root&#39;@&#39;localhost&#39;IDENTIFIED BY &#39;root&#39;;</code></p>
+</li>
+<li><p>直接修改表：<code>update user SET  authentication_string=&#39;root&#39; WHERE user=&#39;root&#39; and host=&#39;localhost&#39;;</code>注意老版是password字段，新版是authentication_string字段；另外网上有些版本WHERE子句只给了user限定，新版本报不安全错误（Error Code: 1175）update语句后要更完整主键限定。</p>
+<p><strong>注意：</strong>以上版本有误！！以上语句会把’root‘直接填入authentication_string字段里，登入时候默认密码会以md5加密。第二天登陆不进去，修改了密码半天。总结：1.密码字段填入密码也需要添加密后的值，老版本用的是password()函数，8.0.11后放弃了这个函数，可用mds()函数代替。2.不要折腾root用户了，日常练习用其他用户，更安全。正确写法<code>update user SET  authentication_string=md5(&#39;root&#39;) WHERE user=&#39;root&#39; and host=&#39;localhost&#39;;</code></p>
+</li>
 </ul>
 </li>
 </ol>
